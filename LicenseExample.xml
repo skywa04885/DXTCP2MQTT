@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<license>
+    <!-- Configured features -->
+    <features>
+        <feature>
+            <name>MQTT_Client</name>
+        </feature>
+        <feature>
+            <name>MODBUS_Slave</name>
+        </feature>
+        <feature>
+            <name>MODBUS_Master</name>
+        </feature>
+    </features>
+    <!-- Details about the usage -->
+    <details>
+        <company>Company name</company>
+        <project>Project name</project>
+        <details>Detailed description of usage</details>
+    </details>
+    <!-- A SHA256WithRSA signature to validate the previously stated license information -->
+    <signature>TEST</signature>
+</license>

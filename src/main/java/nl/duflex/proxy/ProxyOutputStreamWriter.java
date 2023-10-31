@@ -38,4 +38,9 @@ public class ProxyOutputStreamWriter {
         this.outputStream.write(chunk);
         return this;
     }
+
+    public ProxyOutputStreamWriter write(final IProxyOutputStreamWritable writable) throws IOException {
+        writable.writeToProxyOutputStream(this);
+        return this;
+    }
 }

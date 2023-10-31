@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class ModbusOptions {
+public class ModbusSlaveOptions {
     public static class Builder {
         private InetAddress address = null;
         private Short port = null;
@@ -21,11 +21,11 @@ public class ModbusOptions {
             return this;
         }
 
-        public ModbusOptions build() {
+        public ModbusSlaveOptions build() {
             assert this.address != null;
             assert this.port != null;
 
-            return new ModbusOptions(this.address, this.port);
+            return new ModbusSlaveOptions(this.address, this.port);
         }
 
         public Builder readFromInputStreamReader(final ProxyInputStreamReader reader) throws IOException {
@@ -65,7 +65,7 @@ public class ModbusOptions {
     private final InetAddress address;
     private final short port;
 
-    public ModbusOptions(final InetAddress address, final short port) {
+    public ModbusSlaveOptions(final InetAddress address, final short port) {
         this.address = address;
         this.port = port;
     }

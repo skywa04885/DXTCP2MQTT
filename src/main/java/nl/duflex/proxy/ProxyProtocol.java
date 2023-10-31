@@ -1,8 +1,9 @@
 package nl.duflex.proxy;
 
 public enum ProxyProtocol {
-    MQTT("MQTT"),
-    MODBUS_SLAVE("MODBUS_SLAVE");
+    Mqtt("MQTT"),
+    ModbusSlave("MODBUS_SLAVE"),
+    ModbusMaster("MODBUS_MASTER");
 
     public final String label;
 
