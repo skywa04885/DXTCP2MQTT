@@ -24,33 +24,29 @@ public class MqttProxyMessageHeader {
             return new MqttProxyMessageHeader(this.qos, this.bodySize);
         }
 
-        public static Builder from(final String raw) throws RuntimeException {
+        public static Builder from(final String line) throws RuntimeException {
             final Builder builder = new Builder();
 
-            // Splits the raw string into its segments.
-            final String[] rawSegments = raw.split(" ");
-
-            // Make sure that there are two raw segments.
-            if (rawSegments.length != 2) {
+            final var lineSegments = line.trim().split(" ");
+            if (lineSegments.length != 2)
                 throw new RuntimeException("The message header must consist of two segments, got "
-                        + rawSegments.length);
-            }
+                        + lineSegments.length);
 
-            // Parse the qos.
+            final var qosLineSegment = lineSegments[0].trim();
+            final var bodySizeLineSegment = lineSegments[1].trim();
+
             try {
-                builder.setQos(Integer.parseInt(rawSegments[0]));
+                builder.setQos(Integer.parseInt(qosLineSegment));
             } catch (final NumberFormatException exception) {
                 throw new RuntimeException("Invalid quality of service value");
             }
 
-            // Parse the body size.
             try {
-                builder.setBodySize(Integer.parseInt(rawSegments[1]));
+                builder.setBodySize(Integer.parseInt(bodySizeLineSegment));
             } catch (final NumberFormatException exception) {
                 throw new RuntimeException("Invalid body size value");
             }
 
-            // Returns the builder.
             return builder;
         }
     }

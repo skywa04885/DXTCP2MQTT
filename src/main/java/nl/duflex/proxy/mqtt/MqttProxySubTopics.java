@@ -1,8 +1,14 @@
 package nl.duflex.proxy.mqtt;
 
-public record MqttProxySubTopics(String[] topics) {
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public record MqttProxySubTopics(List<String> topics) {
     public static MqttProxySubTopics fromString(final String raw) {
-        final String[] topics = raw.split("\r\n");
-        return new MqttProxySubTopics(topics);
+        return new MqttProxySubTopics(Arrays
+                .stream(raw.split("\r\n"))
+                .map(String::trim)
+                .collect(Collectors.toList()));
     }
 }

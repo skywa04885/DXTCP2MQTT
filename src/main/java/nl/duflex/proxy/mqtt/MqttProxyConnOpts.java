@@ -55,44 +55,41 @@ public class MqttProxyConnOpts {
 
         public static Builder fromString(final String line) throws RuntimeException {
             final Builder builder = new Builder();
-            String[] lineSegments;
 
-            // Splits the line into the segments.
-            lineSegments = line.split(" ");
-
-            // Makes sure the proper number of segments is present.
-            if (!(lineSegments.length == 3 || lineSegments.length == 4 || lineSegments.length == 5)) {
+            final var lineSegments = line.trim().split(" ");
+            if (!(lineSegments.length == 3 || lineSegments.length == 4 || lineSegments.length == 5))
                 throw new RuntimeException("The broker line does not have the correct number of segments");
-            }
 
-            // Sets the address.
+            final var addressLineSegment = lineSegments[0].trim();
+            final var portLineSegment = lineSegments[1].trim();
+            final var clientIdLineSegment = lineSegments[2].trim();
+
             try {
-                builder.setAddress(InetAddress.getByName(lineSegments[0]));
+                builder.setAddress(InetAddress.getByName(addressLineSegment));
             } catch (final UnknownHostException exception) {
                 throw new RuntimeException("Could not parse address, exception: " + exception);
             }
 
-            // Sets the port.
             try {
-                builder.setPort(Short.parseShort(lineSegments[1]));
+                builder.setPort(Short.parseShort(portLineSegment));
             } catch (final NumberFormatException exception) {
                 throw new RuntimeException("Could not parse port, exception: " + exception);
             }
 
-            // Gets the id.
-            builder.setClientId(lineSegments[2]);
+            builder.setClientId(clientIdLineSegment);
 
-            // Sets the username.
             if (lineSegments.length == 4 || lineSegments.length == 5) {
-                builder.setUsername(lineSegments[3]);
+                final var usernameLineSegment = lineSegments[3].trim();
+
+                builder.setUsername(usernameLineSegment);
             }
 
-            // Sets the password.
             if (lineSegments.length == 5) {
-                builder.setPassword(lineSegments[4]);
+                final var passwordLineSegment = lineSegments[4].trim();
+
+                builder.setPassword(passwordLineSegment);
             }
 
-            // Returns the builder.
             return builder;
         }
     }
