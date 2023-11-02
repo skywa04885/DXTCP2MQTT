@@ -1,9 +1,12 @@
 package nl.duflex.proxy;
 
+import java.io.IOException;
+
 public enum ProxyProtocol {
     Mqtt("MQTT"),
     ModbusSlave("MODBUS_SLAVE"),
-    ModbusMaster("MODBUS_MASTER");
+    ModbusMaster("MODBUS_MASTER"),
+    HttpRestApi("HTTP_REST_API");
 
     public final String label;
 
@@ -11,12 +14,20 @@ public enum ProxyProtocol {
         this.label = label;
     }
 
-    public static ProxyProtocol fromLabel(final String label) throws RuntimeException {
-        for (final ProxyProtocol proxyProtocol : values()) {
-            if (!proxyProtocol.label.equals(label)) continue;
-            return proxyProtocol;
-        }
+    public static ProxyProtocol deserialize(String serialized) throws RuntimeException {
+        serialized = serialized.trim().toUpperCase();
 
-        throw new RuntimeException("Unrecognized protocol label: " + label);
+        for (final ProxyProtocol proxyProtocol : values())
+            if (proxyProtocol.label.equals(serialized)) return proxyProtocol;
+
+        throw new RuntimeException("Unrecognized protocol label: " + serialized);
+    }
+
+    public static ProxyProtocol readFromProxyInputStreamReader(final ProxyInputStreamReader proxyInputStreamReader)
+            throws IOException {
+        final var line = proxyInputStreamReader.readStringUntilNewLine();
+        if (line == null) return null;
+
+        return deserialize(line);
     }
 }

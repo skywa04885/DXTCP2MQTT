@@ -1,22 +1,57 @@
 package nl.duflex;
 
-import nl.duflex.proxy.ProxyProtocolClientHandler;
-import nl.duflex.proxy.ProxyProtocolClientHandlerFactory;
-import nl.duflex.proxy.ProxyTcpClientHandler;
-import nl.duflex.proxy.TcpServer;
+import nl.duflex.proxy.*;
+import nl.duflex.proxy.http.DXHttpConfig;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.ServerSocket;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
 public class Main {
     private static Logger logger = Logger.getLogger(Main.class.getName());
 
-    public static void main(String[] args) throws UnknownHostException {
-        final TcpServer tcpServer = new TcpServer(InetAddress.getByName("0.0.0.0"), (short) 5000, 4);
+    public static void main(String[] args) throws IOException {
+        DXHttpConfig.ReadFromFile(new File(Paths.get(System.getProperty("user.dir"), "http.xml").toString()));
 
+        System.exit(0);
+
+        final var encodedLicenseKey = System.getenv("DX_PROTO_PROXY_LICENSE");
+        if (encodedLicenseKey == null) {
+            logger.warning("License key could not be found. Insert license in 'DX_PROTO_PROXY_LICENSE' " +
+                    "environment variable.");
+            return;
+        }
+
+        final var licenseKeyVerifierPublicKey = LicenseVerifierPublicKeyFactory.createFromResource("public.pem");
+        final var licenseVerifier = new LicenseVerifier(licenseKeyVerifierPublicKey);
+
+        License license;
+        try {
+            license = licenseVerifier.verify(encodedLicenseKey);
+        } catch (final InvalidLicenseException invalidLicenseException) {
+            logger.warning(invalidLicenseException.getMessage());
+            return;
+        }
+
+        logger.info("License key verified!");
+
+        final HashMap<ProxyProtocol, ProtocolClientHandlerBuilder> proxyProtocolProtocolClientHandlerBuilderMap = new HashMap<>();
+
+        for (final var feature : license.getFeatures()) {
+            final var protocol = ProxyProtocol.deserialize(feature);
+            logger.info("Enabling handler for protocol: " + protocol);
+            proxyProtocolProtocolClientHandlerBuilderMap.put(protocol,
+                    ProtocolClientHandlerBuilderFactory.forProtocol(protocol));
+        }
+
+        final var clientHandlerFactory = new ProxyProtocolClientHandlerFactory(proxyProtocolProtocolClientHandlerBuilderMap);
+
+        final ServerSocket serverSocket = new ServerSocket((short) 5000, 4, InetAddress.getByName("0.0.0.0"));
+        final TcpServer tcpServer = new TcpServer(serverSocket, clientHandlerFactory);
         tcpServer.run();
     }
 }

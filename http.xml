@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Apis>
+    <Api Name="MIR" HttpVersion="HTTP/1.1">
+        <Instances>
+            <Instance Name="primary" Host="127.0.0.1" Port="8080" Protocol="http" />
+            <Instance Name="secondary" Host="127.0.0.1" Port="8081" Protocol="http" />
+        </Instances>
+        <Endpoints>
+            <Endpoint Name="map">
+                <Request Method="GET">
+                    <Uri Path="/map/{guid}">
+                        <QueryParameters>
+                            <Parameter Key="test" Value="value" />
+                            <Parameter Key="hello" />
+                        </QueryParameters>
+                    </Uri>
+                    <Headers>
+                        <Header Key="Authorization" Value="Bearer token" />
+                        <Header Key="ClientIdentifier" />
+                    </Headers>
+                    <Response Type="json">
+                        <Fields>
+                            <Field Name="NestedVariable" Path="Variable.Nested.Inside.Multiple.Objects" />
+                        </Fields>
+                    </Response>
+                </Request>
+            </Endpoint>
+        </Endpoints>
+    </Api>
+</Apis>

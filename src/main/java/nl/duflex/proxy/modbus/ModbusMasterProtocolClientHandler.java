@@ -8,8 +8,11 @@ import nl.duflex.proxy.ProxyProtocolClientHandler;
 import nl.duflex.proxy.ProxyTcpClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 public class ModbusMasterProtocolClientHandler extends ProxyProtocolClientHandler implements ServiceRequestHandler {
@@ -17,9 +20,8 @@ public class ModbusMasterProtocolClientHandler extends ProxyProtocolClientHandle
     private final LinkedList<ResponseMessage<?>> responseMessages = new LinkedList<>();
 
     private ModbusTcpMaster modbusTcpMaster = null;
-    private boolean running = false;
-    private Thread requestSendingThread = null;
-    private Thread requestReceivingThread = null;
+    private final AtomicBoolean shuttingDown = new AtomicBoolean(false);
+    private final List<Thread> threads = new ArrayList<>();
 
     public ModbusMasterProtocolClientHandler(final ProxyTcpClient client) {
         super(client);
@@ -56,8 +58,14 @@ public class ModbusMasterProtocolClientHandler extends ProxyProtocolClientHandle
         return true;
     }
 
-    private void shutdown() {
-        // Disconnect the master.
+    private void interruptOtherThreads() {
+        this.threads
+                .stream()
+                .filter(thread -> thread != Thread.currentThread())
+                .forEach(Thread::interrupt);
+    }
+
+    private void disconnectModbusMaster() {
         if (this.modbusTcpMaster != null) {
             try {
                 this.modbusTcpMaster.disconnect().get();
@@ -67,13 +75,22 @@ public class ModbusMasterProtocolClientHandler extends ProxyProtocolClientHandle
                 this.logger.severe("Failed to disconnect modbus master, message: " + exception.getMessage());
             }
         }
+    }
 
-        // Close the client.
+    private void closeClient() {
         try {
             this.client.close();
         } catch (final IOException ioException) {
             this.logger.warning("Failed to close client socket, message: " + ioException.getMessage());
         }
+    }
+
+    private void shutdown() {
+        if (!this.shuttingDown.compareAndSet(false, true)) return;
+
+        interruptOtherThreads();
+        disconnectModbusMaster();
+        closeClient();
     }
 
     private void sendRequests() {
@@ -91,20 +108,11 @@ public class ModbusMasterProtocolClientHandler extends ProxyProtocolClientHandle
                 // Writes the response message to the output stream.
                 outputStreamWriter.write(responseMessage);
             }
-        } catch (final InterruptedException ignored) {
-        } catch (final IOException ioException) {
-            this.logger.warning("Got IO exception while sending requests, message: " + ioException.getMessage());
-        } finally {
-            // Makes sure that the shutdown only gets called once.
-            synchronized (this) {
-                if (!this.running) return;
-                this.running = false;
+        } catch (final Exception exception) {
+            if (!(exception instanceof InterruptedException)) {
+                this.logger.severe("An exception occurred, message: " + exception.getMessage());
             }
-
-            // Interrupts the other thread.
-            this.requestReceivingThread.interrupt();
-
-            // Shuts down.
+        } finally {
             shutdown();
         }
 
@@ -153,19 +161,11 @@ public class ModbusMasterProtocolClientHandler extends ProxyProtocolClientHandle
                         });
 
             }
-        } catch (final IOException exception) {
-            this.logger.severe("An io exception occurred, message: " + exception.getMessage());
-        } finally {
-            // Makes sure that the shutdown only gets called once.
-            synchronized (this) {
-                if (!this.running) return;
-                this.running = false;
+        } catch (final Exception exception) {
+            if (!(exception instanceof InterruptedException)) {
+                this.logger.severe("An exception occurred, message: " + exception.getMessage());
             }
-
-            // Interrupts the other thread.
-            this.requestSendingThread.interrupt();
-
-            // Shuts down.
+        } finally {
             shutdown();
         }
 
@@ -179,13 +179,9 @@ public class ModbusMasterProtocolClientHandler extends ProxyProtocolClientHandle
                 return;
             }
 
-            this.requestSendingThread = new Thread(this::sendRequests);
-            this.requestSendingThread.start();
-
-            this.requestReceivingThread = new Thread(this::receiveRequests);
-            this.requestReceivingThread.start();
-
-            this.running = true;
+            this.threads.add(new Thread(this::sendRequests));
+            this.threads.add(new Thread(this::receiveRequests));
+            this.threads.forEach(Thread::start);
         } catch (final IOException exception) {
             this.logger.severe("An IO exception occurred, message: " + exception.getMessage());
         } catch (final RuntimeException exception) {

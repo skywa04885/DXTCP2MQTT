@@ -1,16 +1,16 @@
 package nl.duflex.proxy;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
-
 import java.io.IOException;
 import java.util.logging.Logger;
 
-public class ProxyTcpClientHandler implements Runnable {
+public class ProxyClientHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     private final ProxyTcpClient client;
+    private final ProxyProtocolClientHandlerFactory clientHandlerFactory;
 
-    public ProxyTcpClientHandler(final ProxyTcpClient client) {
+    public ProxyClientHandler(final ProxyTcpClient client, final ProxyProtocolClientHandlerFactory clientHandlerFactory) {
         this.client = client;
+        this.clientHandlerFactory = clientHandlerFactory;
     }
 
     /**
@@ -37,11 +37,11 @@ public class ProxyTcpClientHandler implements Runnable {
             }
 
             // Gets the protocol from the line.
-            final ProxyProtocol proxyProtocol = ProxyProtocol.fromLabel(protocolLine);
+            final ProxyProtocol proxyProtocol = ProxyProtocol.deserialize(protocolLine);
 
             // Creates the client handler.
-            final ProxyProtocolClientHandler clientHandler = ProxyProtocolClientHandlerFactory.create(proxyProtocol,
-                    this.client);
+            final ProxyProtocolClientHandler clientHandler =
+                    this.clientHandlerFactory.createForProtocol(proxyProtocol, this.client);
 
             // Runs the client.
             clientHandler.run();

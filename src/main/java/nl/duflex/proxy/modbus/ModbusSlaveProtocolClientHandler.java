@@ -61,9 +61,10 @@ public class ModbusSlaveProtocolClientHandler extends ProxyProtocolClientHandler
                 this.logger.info("Writing request message");
                 message.writeToOutputStreamWriter(outputStreamWriter);
             }
-        } catch (final IOException exception) {
-            this.logger.severe("An io exception occurred, message: " + exception.getMessage());
-        } catch (final InterruptedException ignore) {
+        } catch (final Exception exception) {
+            if (!(exception instanceof InterruptedException)) {
+                this.logger.severe("An exception occurred, message: " + exception.getMessage());
+            }
         } finally {
             if (running.compareAndSet(true, false)) {
                 receiveResponsesThread.interrupt();
@@ -98,9 +99,10 @@ public class ModbusSlaveProtocolClientHandler extends ProxyProtocolClientHandler
                 this.logger.info("Read future response message");
 
             }
-        } catch (final IOException exception) {
-            this.logger.severe("An io exception occurred, message: " + exception.getMessage());
-        } catch (final InterruptedException ignore) {
+        } catch (final Exception exception) {
+            if (!(exception instanceof InterruptedException)) {
+                this.logger.severe("An exception occurred, message: " + exception.getMessage());
+            }
         } finally {
             if (running.compareAndSet(true, false)) {
                 sendRequestsThread.interrupt();
