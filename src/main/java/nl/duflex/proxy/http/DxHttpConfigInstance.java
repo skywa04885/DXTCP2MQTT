@@ -13,11 +13,11 @@ public class DxHttpConfigInstance {
     public static final String PROTOCOL_ATTRIBUTE_NAME = "Protocol";
 
     public final String Name;
-    public final InetAddress Host;
+    public final String Host;
     public final short Port;
     public final String Protocol;
 
-    public DxHttpConfigInstance(final String name, final InetAddress host, final short port, final String protocol) {
+    public DxHttpConfigInstance(final String name, final String host, final short port, final String protocol) {
         Name = name;
         Host = host;
         Port = port;
@@ -28,16 +28,8 @@ public class DxHttpConfigInstance {
         final var name = element.getAttribute(NAME_ATTRIBUTE_NAME).trim();
         if (name.isEmpty()) throw new RuntimeException("Name attribute is missing");
 
-        final var hostString = element.getAttribute(HOST_ATTRIBUTE_NAME).trim();
-        if (hostString.isEmpty()) throw new RuntimeException("Host attribute is missing");
-
-        InetAddress host;
-
-        try {
-            host = InetAddress.getByName(hostString);
-        } catch (final UnknownHostException exception) {
-            throw new RuntimeException("Unknown host");
-        }
+        final var host = element.getAttribute(HOST_ATTRIBUTE_NAME).trim();
+        if (host.isEmpty()) throw new RuntimeException("Host attribute is missing");
 
         final var portString = element.getAttribute(PORT_ATTRIBUTE_NAME).trim();
         if (portString.isEmpty()) throw new RuntimeException("Port attribute is missing");

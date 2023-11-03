@@ -1,6 +1,7 @@
 package nl.duflex.proxy.http;
 
 import nl.duflex.proxy.DXDomUtils;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import java.util.List;
@@ -10,10 +11,10 @@ public class DXHttpConfigResponse {
     public static final String CODE_ATTRIBUTE_NAME = "Code";
 
     public final int Code;
-    public final DXHttpConfigFields Fields;
-    public final DXHttpConfigHeaders Headers;
+    public @Nullable final DXHttpConfigFields Fields;
+    public @Nullable final DXHttpConfigHeaders Headers;
 
-    public DXHttpConfigResponse(final int code, final DXHttpConfigFields fields, final DXHttpConfigHeaders headers) {
+    public DXHttpConfigResponse(final int code, @Nullable final DXHttpConfigFields fields, @Nullable final DXHttpConfigHeaders headers) {
         Code = code;
         Fields = fields;
         Headers = headers;
@@ -33,11 +34,12 @@ public class DXHttpConfigResponse {
         }
 
         final var headersElements = DXDomUtils.GetChildElementsWithTagName(element, DXHttpConfigHeaders.ELEMENT_TAG_NAME);
-        if (headersElements.size() == 0) throw new RuntimeException("Headers element is missing");
+        DXHttpConfigHeaders headers = null;
+        if (headersElements.size() == 1) {
+            final var headersElement = headersElements.get(0);
+            headers = DXHttpConfigHeaders.FromElement(headersElement);
+        }
         if (headersElements.size() > 1) throw new RuntimeException("Too many headers elements");
-        final var headersElement = headersElements.get(0);
-
-        final var headers = DXHttpConfigHeaders.FromElement(headersElement);
 
         final List<Element> fieldsElements = DXDomUtils.GetChildElementsWithTagName(element,
                 DXHttpConfigFields.ELEMENT_TAG_NAME);

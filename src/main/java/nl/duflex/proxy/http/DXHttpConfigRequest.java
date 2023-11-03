@@ -15,13 +15,13 @@ public class DXHttpConfigRequest {
 
     @NotNull public final DXHttpConfigUri Uri;
     @NotNull public final DXHttpRequestMethod Method;
-    @NotNull public final DXHttpConfigHeaders Headers;
+    @Nullable public final DXHttpConfigHeaders Headers;
     @Nullable public final DXHttpConfigFields Fields;
     @NotNull public final DXHttpConfigResponses Responses;
 
     public DXHttpConfigRequest(@NotNull final DXHttpConfigUri uri,
                                @NotNull final DXHttpRequestMethod method,
-                               @NotNull final DXHttpConfigHeaders headers,
+                               @Nullable final DXHttpConfigHeaders headers,
                                @Nullable  final DXHttpConfigFields fields,
                                @NotNull final DXHttpConfigResponses responses) {
         Uri = uri;
@@ -45,11 +45,11 @@ public class DXHttpConfigRequest {
         final var method = DXHttpRequestMethod.FromLabel(methodString);
 
         final var headersElements = DXDomUtils.GetChildElementsWithTagName(element, DXHttpConfigHeaders.ELEMENT_TAG_NAME);
-        if (headersElements.size() == 0) throw new RuntimeException("Headers element is missing");
-        if (headersElements.size() > 1) throw new RuntimeException("Too many headers elements");
-        final var headersElement = headersElements.get(0);
-
-        final var headers = DXHttpConfigHeaders.FromElement(headersElement);
+        DXHttpConfigHeaders headers = null;
+        if (headersElements.size() == 1) {
+            final var headersElement = headersElements.get(0);
+            headers = DXHttpConfigHeaders.FromElement(headersElement);
+        } else if (headersElements.size() > 1) throw new RuntimeException("Too many headers elements");
 
         final List<Element> fieldsElements = DXDomUtils.GetChildElementsWithTagName(element,
                 DXHttpConfigFields.ELEMENT_TAG_NAME);

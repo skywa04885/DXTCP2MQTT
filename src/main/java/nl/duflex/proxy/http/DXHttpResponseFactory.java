@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DXHttpResponseFactory {
     public static DXHttpResponse FromResponse(final HttpResponse<byte[]> httpResponse, final DXHttpConfigResponses configResponses) {
@@ -14,8 +15,10 @@ public class DXHttpResponseFactory {
             throw new RuntimeException("No config response found for status code: " + httpResponse.statusCode());
 
         // Gets the response body.
-        final var body = new HashMap<String, String>();
-        if (configResponse.Fields.Format == DXHttpFieldsFormat.JSON) {
+        Map<String, String> body = null;
+        if (configResponse.Fields != null && configResponse.Fields.Format == DXHttpFieldsFormat.JSON) {
+            body = new HashMap<>();
+
             // Parses the json object.
             final var jsonObject = new JSONObject(new String(httpResponse.body(), StandardCharsets.UTF_8));
 
@@ -38,18 +41,22 @@ public class DXHttpResponseFactory {
         }
 
         // Gets all the headers of interest.
-        final var headers = new HashMap<String, String>();
-        for (final DXHttpConfigHeader header : configResponse.Headers.Children.values()) {
-            // Gets the header value.
-            final var optionalValue = httpResponse.headers().firstValue(header.Key);
-            final var value = optionalValue.orElseGet(() -> header.Value);
+        Map<String, String> headers = null;
+        if (configResponse.Headers != null && !configResponse.Headers.Children.isEmpty()) {
+            headers = new HashMap<>();
 
-            // If the value is still null throw a runtime error.
-            if (value == null)
-                throw new RuntimeException("Missing value for header with key: " + header.Key);
+            for (final DXHttpConfigHeader header : configResponse.Headers.Children.values()) {
+                // Gets the header value.
+                final var optionalValue = httpResponse.headers().firstValue(header.Key);
+                final var value = optionalValue.orElseGet(() -> header.Value);
 
-            // Puts the header value together with its key (or name) in the headers.
-            headers.put(header.Name != null ? header.Name : header.Key, value);
+                // If the value is still null throw a runtime error.
+                if (value == null)
+                    throw new RuntimeException("Missing value for header with key: " + header.Key);
+
+                // Puts the header value together with its key (or name) in the headers.
+                headers.put(header.Name != null ? header.Name : header.Key, value);
+            }
         }
 
         return new DXHttpResponse(configResponse.Code, headers, body);

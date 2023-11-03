@@ -10,16 +10,24 @@ public class DXHttpConfigEndpoint {
     public static final String TAG_NAME = "Endpoint";
     public static final String NAME_ATTRIBUTE_NAME = "Name";
 
-    public final String Name;
-    public final Map<DXHttpRequestMethod, DXHttpConfigRequest> Requests;
+    private String name;
+    private Map<DXHttpRequestMethod, DXHttpConfigRequest> requests;
 
     public DXHttpConfigEndpoint(final String name, final Map<DXHttpRequestMethod, DXHttpConfigRequest> requests) {
-        Name = name;
-        Requests = requests;
+        this.name = name;
+        this.requests = requests;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Map<DXHttpRequestMethod, DXHttpConfigRequest> getRequests() {
+        return requests;
     }
 
     public DXHttpConfigRequest GetRequestByMethod(final DXHttpRequestMethod method) {
-        return Requests.get(method);
+        return requests.get(method);
     }
 
     public static DXHttpConfigEndpoint FromElement(final Element element) {

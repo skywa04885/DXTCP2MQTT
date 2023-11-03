@@ -116,14 +116,14 @@ public class DXHttpRequestReader {
 
         // Gets the headers if they are required by the configuration.
         HashMap<String, String> headers = null;
-        if (!configRequest.Headers.Children.isEmpty()) {
+        if (configRequest.Headers != null && !configRequest.Headers.Children.isEmpty()) {
             if ((tempString = proxyInputStreamReader.readStringUntilDoubleNewLine()) == null) return null;
             headers = ReadKeyValuePairs(tempString.split("\\r?\\n"));
         }
 
         // Gets the body fields if they are required by the configuration.
         HashMap<String, String> fields = null;
-        if (configRequest.Fields != null) {
+        if (configRequest.Fields != null && !configRequest.Fields.Fields.isEmpty()) {
             if ((tempString = proxyInputStreamReader.readStringUntilDoubleNewLine()) == null) return null;
             fields = ReadKeyValuePairs(tempString.split("\\r?\\n"));
         }
@@ -134,7 +134,7 @@ public class DXHttpRequestReader {
 
         // Creates the initial part of the URI, which does not include the query parameters.
         final var pathRenderer = new DXHttpPathTemplateRenderer(configRequestUri.Path);
-        StringBuilder uriStringBuilder = new StringBuilder(configInstance.Protocol + "://" + configInstance.Host.getHostAddress()
+        StringBuilder uriStringBuilder = new StringBuilder(configInstance.Protocol + "://" + configInstance.Host
                 + ':' + configInstance.Port + pathRenderer.Render(pathSubstitutions));
 
         // Adds the query parameters to the request URI.
@@ -155,7 +155,7 @@ public class DXHttpRequestReader {
         var httpRequestBuilder = HttpRequest.newBuilder(URI.create(uriStringBuilder.toString()));
 
         // Sets the headers if required.
-        if (!configRequest.Headers.Children.isEmpty()) {
+        if (configRequest.Headers != null && !configRequest.Headers.Children.isEmpty()) {
             // Headers will never be null due to previous logic.
             assert headers != null;
 
@@ -176,7 +176,7 @@ public class DXHttpRequestReader {
 
         // Constructs the body publisher if needed.
         HttpRequest.BodyPublisher bodyPublisher = null;
-        if (configRequest.Fields != null)
+        if (configRequest.Fields != null && !configRequest.Fields.Fields.isEmpty())
         {
             // Makes sure that the request method supports a body,
             if (configRequest.Method != DXHttpRequestMethod.Post && configRequest.Method != DXHttpRequestMethod.Put)

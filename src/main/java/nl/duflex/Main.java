@@ -3,9 +3,11 @@ package nl.duflex;
 import nl.duflex.proxy.*;
 import nl.duflex.proxy.http.DXHttpConfig;
 import nl.duflex.proxy.http.DXHttpRequestMethod;
+import nl.duflex.proxy.http.DXHttpSwaggerParser;
 import nl.duflex.proxy.http.HttpRestApiClientHandlerBuilder;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -28,6 +30,11 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
+//        DXHttpSwaggerParser nigga = new DXHttpSwaggerParser();
+//        nigga.parse(new String(new FileInputStream("mir100.yaml").readAllBytes()));
+
+//        System.exit(-1);
+
         final var encodedLicenseKey = System.getenv("DX_PROTO_PROXY_LICENSE");
         if (encodedLicenseKey == null) {
             logger.warning("License key could not be found. Insert license in 'DX_PROTO_PROXY_LICENSE' " +

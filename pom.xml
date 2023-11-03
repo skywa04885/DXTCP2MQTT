@@ -26,7 +26,12 @@
             <artifactId>annotations</artifactId>
             <version>24.0.1</version>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/io.swagger/swagger-parser -->
+        <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>2.1.18</version>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>

@@ -1,44 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Apis>
-    <Api Name="MIR" HttpVersion="HTTP/1.1">
+    <Api Name="Weather" HttpVersion="HTTP/1.1">
         <Instances>
-            <Instance Name="primary" Host="127.0.0.1" Port="8080" Protocol="http" />
-            <Instance Name="secondary" Host="127.0.0.1" Port="8081" Protocol="http" />
+            <Instance Name="OpenWeatherMap" Host="api.openweathermap.org" Port="443" Protocol="https" />
         </Instances>
         <Endpoints>
-            <Endpoint Name="map">
-                <Request Method="POST">
-                    <Uri Path="/map/{guid}">
+            <Endpoint Name="Current">
+                <Request Method="GET">
+                    <Uri Path="/data/2.5/weather">
                         <QueryParameters>
-                            <Parameter Key="test" Value="value" />
-                            <Parameter Key="hello" />
+                            <Parameter Key="lat" />
+                            <Parameter Key="lon" />
+                            <Parameter Key="appid" Value="ddee795da0b9247de0e2c614267b0976" />
+                            <Parameter Key="units" Value="metric" />
+                            <Parameter Key="lang" Value="nl" />
                         </QueryParameters>
                     </Uri>
-                    <Headers>
-                        <Header Name="Auth" Key="Authorization" Value="Bearer token" />
-                        <Header Name="CI" Key="ClientIdentifier" />
-                    </Headers>
-                    <Fields Format="json">
-                        <Field Name="Test" Path="Hello.world.Test" />
-                        <Field Name="Data" Path="Hello.World.hi" Value="test" />
-                    </Fields>
                     <Responses>
                         <Response Code="200">
-                            <Headers>
-                                <Header Name="CType" Key="Content-Type" />
-                            </Headers>
                             <Fields Format="json">
-                                <Field Name="GUID" Path="guid" />
-                                <Field Name="Date" Path="date" />
-                                <Field Name="TestWithDefault" Path="asdjioashduiauid" Value="DefaultValue" />
+                                <Field Name="Humidity" Path="main.humidity" />
+                                <Field Name="Temperature" Path="main.temp" />
+                                <Field Name="Pressure" Path="main.pressure" />
+                                <Field Name="WindSpeed" Path="wind.speed" />
+                                <Field Name="Timezone" Path="timezone" />
                             </Fields>
                         </Response>
-                        <Response Code="500">
-                            <Headers>
-                                <Header Name="CType" Key="Content-Type" />
-                            </Headers>
+                        <Response Code="401">
                             <Fields Format="json">
-                                <Field Name="Error" Path="Variable.Error" />
+                                <Field Name="Code" Path="cod" />
+                                <Field Name="Message" Path="message" />
                             </Fields>
                         </Response>
                     </Responses>

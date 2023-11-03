@@ -67,7 +67,7 @@ public class DXHttpConfigApi {
 
         for (final Element value : endpointElements) {
             final var endpoint = DXHttpConfigEndpoint.FromElement(value);
-            endpoints.put(endpoint.Name, endpoint);
+            endpoints.put(endpoint.getName(), endpoint);
         }
 
         return new DXHttpConfigApi(name, httpVersion, instances, endpoints);

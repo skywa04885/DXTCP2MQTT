@@ -39,7 +39,7 @@ public class MqttProtocolClientHandler extends ProxyProtocolClientHandler implem
         logger.info("Connecting to " + connOpts.toServerURI() + " with client id " + connOpts.getClientId());
 
         // Creates the MQTT client, sets the callbacks to the current instance and connects to it.
-        this.mqttClient = new MqttClient(connOpts.toServerURI(), connOpts.getClientId());
+        this.mqttClient = new MqttClient(connOpts.toServerURI(), connOpts.getClientId(), null);
         this.mqttClient.setCallback(this);
         this.mqttClient.connect(connOpts.toMqttConnectOptions());
 
