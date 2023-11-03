@@ -417,3 +417,133 @@ as Base16, Base64 etc.
 
 Sending messages is the same as receiving messages, however the roles are reversed. So in order to send a message,
 just use the explanation above, and reverse the server/ client roles.
+
+# 3. HTTP
+
+The HTTP protocol proxy provides a simplified HTTP interface to PLCs. This is achieved by pre-defining the APIs, their
+endpoints and their requests/ responses. By pre-defining these, one can tell the Proxy which data the PLC needs to send
+in order to perform a request, but also what data it wants to receive. This allows the PLC to still perform HTTP requests
+/ serve HTTP pages, without having to process a ton of data.
+
+## 3.1. HTTP (Client)
+
+
+### 3.1.1. Initializing the HTTP client
+
+In order to initialize the HTTP client, the proxy client is expected to send the following information
+in the following format.
+
+```text
+>> HTTP_CLIENT<CR><LF>
+```
+
+### 3.1.2. Performing a POST request
+
+The `HeaderIdentifier` place-holders below can either contain the `Key` of the header, or the `Name` of
+the header. The name can be optionally supplied in the config.
+
+```text
+>> POST<SP>[ApiName, String]<SP>[InstanceName, String]<SP>[EndpointName, String]<CR><LF>
+>> [PathSubstitutionName 1, String]:<SP>[PathSubstitutionValue 1, String]<CR><LF>
+>> [PathSubstitutionName 2, String]:<SP>[PathSubstitutionValue 2, String]<CR><LF>
+>> [...]
+>> <CR><LF>
+>> [QueryParameterName 1, String]:<SP>[QueryParameterValue 1, String]<CR><LF>
+>> [QueryParameterName 2, String]:<SP>[QueryParameterValue 2, String]<CR><LF>
+>> [...]
+>> <CR><LF>
+>> [HeaderIdentifier 1, String]:<SP>[HeaderValue 1, String]<CR><LF>
+>> [HeaderIdentifier 2, String]:<SP>[HeaderValue 2, String]<CR><LF>
+>> [...]
+>> <CR><LF>
+>> [BodyValueName 1, String]:<SP>[BodyValue 1, String]<CR><LF>
+>> [BodyValueName 2, String]:<SP>[BodyValue 2, String]<CR><LF>
+>> [...]
+>> <CR><LF>
+```
+
+This might seem similar to the HTTP protocol, and like it did not simplify anything, however, keep in mind
+that the names of for example the headers can be as small and short as one would like. Further, all the non-needed
+data from the body and the headers will be discarded, and boilerplate headers will not have to be sent to the
+proxy every single time.
+
+An example of such a POST request might look like this, below the request you can see the API configuration
+that will be called by the request.
+
+```text
+>> POST ApiName PrimaryInstance TestEndpoint 
+>> Example1: Hello
+>> Example2: World
+>> 
+>> SomeFancyQuery: This is a test query string
+>>
+>> User: Luke
+>> Expect: Something
+>>
+>> BodyData: Hello world this is a test
+>> MoreBodyData: Cool huh?
+>>
+<< 200
+<< S: Secret
+<< A: ASD123
+<<
+<< Value: Hello World
+<<
+```
+
+Together with the config
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<Apis>
+    <Api name="ApiName" HttpVersion="HTTP/1.1">
+        <Instances>
+            <Instance Name="PrimaryInstance" Host="example.com" Port="6000" Protocol="http" />
+        </Instances>
+        <Endpoints>
+            <Endpoint name="TestEndpoint">
+                <Request Method="POST">
+                    <Uri Path="/Deep/Path/In/Url/{Example1}/{Example2}">
+                        <QueryParameters>
+                            <Parameter Key="SomeFancyQueryString" />
+                        </QueryParameters>
+                    </Uri>
+                    <Headers>
+                        <Header Name="Authentication" Value="Bearer token" />
+                        <Header Name="User" />
+                        <Header Name="Expect" />
+                    </Headers>
+                    <Fields Format="json">
+                        <Field Name="BodyData" Path="Nested.Objects.Support.BodyData" />
+                        <Field Name="BodyData" Path="Nested.MoreBodyData" />
+                    </Fields>
+                    <Responses>
+                        <Response Code="200">
+                            <Headers>
+                                <Header Name="S" Key="Secret" />
+                                <Header Name="A" Key="ASD" Value="ASD123" />
+                            </Headers>
+                            <Fields Format="json">
+                                <Field Name="Value" Path="Value.Value" />
+                            </Fields>
+                        </Response>
+                    </Responses>
+                </Request>
+            </Endpoint>
+        </Endpoints>
+    </Api>
+</Apis>
+```
+
+Which will perform the following HTTP request on the server (with some fields left out in the example) `http://example.com:6000`.
+
+```text
+GET /Deep/Path/In/Url/Hello/World?SomeFancyQuery=This%20is%20a%20test%20query%20string HTTP/1.1
+Authentication: Bearer token
+User: Luke
+Expect: Something
+Content-Type: application/json; charset=utf-8
+Content-Length: 106
+
+{"Nested":{"Objects":{"Support":{"BodyData": "Hello world this is a test"}}, "MoreBodyData": "Cool huh?"}}
+```

@@ -12,7 +12,6 @@ public class DXHttpRequestData {
     public final Map<String, String> Headers;
     public final Map<String, String> Body;
 
-
     public DXHttpRequestData(final String apiName, final String endpointName, final String instanceName,
                              final DXHttpRequestMethod method, final Map<String, String> pathSubstitutes,
                              final Map<String, String> queryParameters, final Map<String, String> headers,

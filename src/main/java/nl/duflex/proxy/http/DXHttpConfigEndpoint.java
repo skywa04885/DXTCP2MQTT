@@ -1,5 +1,6 @@
 package nl.duflex.proxy.http;
 
+import nl.duflex.proxy.DXDomUtils;
 import org.w3c.dom.Element;
 
 import java.util.HashMap;
@@ -27,13 +28,13 @@ public class DXHttpConfigEndpoint {
         final String name = element.getAttribute(NAME_ATTRIBUTE_NAME).trim();
         if (name.isEmpty()) throw new RuntimeException("Name attribute missing");
 
-        final var requestElements = element.getElementsByTagName(DXHttpConfigRequest.ELEMENT_TAG_NAME);
+        final var requestElements = DXDomUtils.GetChildElementsWithTagName(element,
+                DXHttpConfigRequest.ELEMENT_TAG_NAME);
 
         final var requests = new HashMap<DXHttpRequestMethod, DXHttpConfigRequest>();
 
-        for (var i = 0; i < requestElements.getLength(); ++i) {
-            final var requestElement = (Element) requestElements.item(i);
-            final var request = DXHttpConfigRequest.FromElement(requestElement);
+        for (final Element value : requestElements) {
+            final var request = DXHttpConfigRequest.FromElement(value);
 
             if (requests.containsKey(request.Method))
                 throw new RuntimeException("Two requests with same method");

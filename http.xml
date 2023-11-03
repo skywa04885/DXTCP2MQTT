@@ -7,7 +7,7 @@
         </Instances>
         <Endpoints>
             <Endpoint Name="map">
-                <Request Method="GET">
+                <Request Method="POST">
                     <Uri Path="/map/{guid}">
                         <QueryParameters>
                             <Parameter Key="test" Value="value" />
@@ -15,14 +15,33 @@
                         </QueryParameters>
                     </Uri>
                     <Headers>
-                        <Header Key="Authorization" Value="Bearer token" />
-                        <Header Key="ClientIdentifier" />
+                        <Header Name="Auth" Key="Authorization" Value="Bearer token" />
+                        <Header Name="CI" Key="ClientIdentifier" />
                     </Headers>
-                    <Response Type="json">
-                        <Fields>
-                            <Field Name="NestedVariable" Path="Variable.Nested.Inside.Multiple.Objects" />
-                        </Fields>
-                    </Response>
+                    <Fields Format="json">
+                        <Field Name="Test" Path="Hello.world.Test" />
+                        <Field Name="Data" Path="Hello.World.hi" Value="test" />
+                    </Fields>
+                    <Responses>
+                        <Response Code="200">
+                            <Headers>
+                                <Header Name="CType" Key="Content-Type" />
+                            </Headers>
+                            <Fields Format="json">
+                                <Field Name="GUID" Path="guid" />
+                                <Field Name="Date" Path="date" />
+                                <Field Name="TestWithDefault" Path="asdjioashduiauid" Value="DefaultValue" />
+                            </Fields>
+                        </Response>
+                        <Response Code="500">
+                            <Headers>
+                                <Header Name="CType" Key="Content-Type" />
+                            </Headers>
+                            <Fields Format="json">
+                                <Field Name="Error" Path="Variable.Error" />
+                            </Fields>
+                        </Response>
+                    </Responses>
                 </Request>
             </Endpoint>
         </Endpoints>

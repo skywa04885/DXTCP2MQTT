@@ -2,11 +2,17 @@ package nl.duflex;
 
 import nl.duflex.proxy.*;
 import nl.duflex.proxy.http.DXHttpConfig;
+import nl.duflex.proxy.http.DXHttpRequestData;
+import nl.duflex.proxy.http.DXHttpRequestFactory;
+import nl.duflex.proxy.http.DXHttpRequestMethod;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -14,8 +20,33 @@ import java.util.logging.Logger;
 public class Main {
     private static Logger logger = Logger.getLogger(Main.class.getName());
 
-    public static void main(String[] args) throws IOException {
-        DXHttpConfig.ReadFromFile(new File(Paths.get(System.getProperty("user.dir"), "http.xml").toString()));
+    public static void main(String[] args) throws IOException, InterruptedException {
+        final var config = DXHttpConfig.ReadFromFile(new File(Paths.get(System.getProperty("user.dir"), "http.xml").toString()));
+
+        HttpClient httpClient = HttpClient.newHttpClient();
+
+        var res = DXHttpRequestFactory.FromConfig(config, new DXHttpRequestData(
+                "MIR",
+                "map",
+                "primary",
+                DXHttpRequestMethod.Post,
+                new HashMap<>() {{
+                    put("guid", "error");
+                }},
+                new HashMap<>() {{
+                    put("hello", "world");
+                }},
+                new HashMap<>() {{
+                    put("CI", "Test");
+                }},
+                new HashMap<>() {{
+                    put("Test", "Hello!");
+                }}
+        )).Perform(httpClient);
+
+        System.out.println(res.Code);
+        System.out.println(res.Headers.toString());
+        System.out.println(res.Body.toString());
 
         System.exit(0);
 

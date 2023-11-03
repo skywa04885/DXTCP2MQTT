@@ -6,13 +6,16 @@ public class DXHttpConfigHeader {
     public static final String ELEMENT_TAG_NAME = "Header";
     public static final String KEY_ATTRIBUTE_NAME = "Key";
     public static final String VALUE_ATTRIBUTE_NAME = "Value";
+    public static final String NAME_ATTRIBUTE_NAME = "Name";
 
     public final String Key;
     public final String Value;
+    public final String Name;
 
-    public DXHttpConfigHeader(final String key, final String value) {
+    public DXHttpConfigHeader(final String key, final String value, final String name) {
         Key = key;
         Value = value;
+        Name = name;
     }
 
     public static DXHttpConfigHeader FromElement(final Element element) {
@@ -25,6 +28,9 @@ public class DXHttpConfigHeader {
         String value = element.getAttribute(VALUE_ATTRIBUTE_NAME).trim();
         value = value.isEmpty() ? null : value;
 
-        return new DXHttpConfigHeader(key, value);
+        String name = element.getAttribute(NAME_ATTRIBUTE_NAME).trim();
+        name = name.isEmpty() ? null : name;
+
+        return new DXHttpConfigHeader(key, value, name);
     }
 }
