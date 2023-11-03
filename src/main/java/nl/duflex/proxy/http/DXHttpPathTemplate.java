@@ -8,4 +8,8 @@ public class DXHttpPathTemplate {
     public DXHttpPathTemplate(final List<DXHttpPathTemplateSegment> segments) {
         Segments = segments;
     }
+
+    public boolean ShouldSubstitute() {
+        return Segments.stream().anyMatch(segment -> segment instanceof DXHttpPathTemplatePlaceholderSegment);
+    }
 }

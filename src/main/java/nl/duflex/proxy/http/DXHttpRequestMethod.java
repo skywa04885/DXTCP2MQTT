@@ -13,10 +13,10 @@ public enum DXHttpRequestMethod {
     }
 
     public static DXHttpRequestMethod FromLabel(String label) {
-        label = label.trim().toUpperCase();
+        label = label.trim();
 
         for (final var method : values()) {
-            if (method.Label.equals(label)) return method;
+            if (method.Label.equalsIgnoreCase(label)) return method;
         }
 
         throw new RuntimeException("Unrecognized request method: " + label);

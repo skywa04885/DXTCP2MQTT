@@ -1,15 +1,31 @@
 package nl.duflex.proxy.http;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Map;
 
 public class DXHttpResponse {
-    public final int Code;
-    public final Map<String, String> Headers;
-    public final Map<String, String> Body;
+    private final int code;
+    private final @Nullable Map<String, String> headers;
+    private  final @Nullable Map<String, String> fields;
 
-    public DXHttpResponse(final int code, final Map<String, String> headers, final Map<String, String> body) {
-        Code = code;
-        Headers = headers;
-        Body = body;
+    public DXHttpResponse(final int code, @Nullable final Map<String, String> headers,
+                          @Nullable final Map<String, String> fields) {
+        this.code = code;
+        this.headers = headers;
+        this.fields = fields;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public Map<String, String> getFields() {
+        return fields;
     }
 }

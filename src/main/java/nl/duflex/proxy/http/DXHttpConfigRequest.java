@@ -1,6 +1,8 @@
 package nl.duflex.proxy.http;
 
 import nl.duflex.proxy.DXDomUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import java.util.HashMap;
@@ -11,16 +13,17 @@ public class DXHttpConfigRequest {
     public static final String ELEMENT_TAG_NAME = "Request";
     public static final String METHOD_ATTRIBUTE_NAME = "Method";
 
-    public final DXHttpConfigUri Uri;
-    public final DXHttpRequestMethod Method;
-    public final DXHttpConfigHeaders Headers;
-    public final DXHttpConfigFields Fields;
-    public final DXHttpConfigResponses Responses;
+    @NotNull public final DXHttpConfigUri Uri;
+    @NotNull public final DXHttpRequestMethod Method;
+    @NotNull public final DXHttpConfigHeaders Headers;
+    @Nullable public final DXHttpConfigFields Fields;
+    @NotNull public final DXHttpConfigResponses Responses;
 
-    public DXHttpConfigRequest(final DXHttpConfigUri uri, final DXHttpRequestMethod method,
-                               final DXHttpConfigHeaders headers,
-                               final DXHttpConfigFields fields,
-                               final DXHttpConfigResponses responses) {
+    public DXHttpConfigRequest(@NotNull final DXHttpConfigUri uri,
+                               @NotNull final DXHttpRequestMethod method,
+                               @NotNull final DXHttpConfigHeaders headers,
+                               @Nullable  final DXHttpConfigFields fields,
+                               @NotNull final DXHttpConfigResponses responses) {
         Uri = uri;
         Method = method;
         Headers = headers;

@@ -34,6 +34,10 @@ public class ProxyOutputStreamWriter {
         return this.write(string).write("\r\n");
     }
 
+
+    public ProxyOutputStreamWriter writeLine() throws IOException {
+        return this.write("\r\n");
+    }
     public ProxyOutputStreamWriter write(final byte[] chunk) throws IOException {
         this.outputStream.write(chunk);
         return this;
