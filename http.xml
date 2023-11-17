@@ -3,6 +3,8 @@
     <Api Name="Weather" HttpVersion="HTTP/1.1">
         <Instances>
             <Instance Name="OpenWeatherMap" Host="api.openweathermap.org" Port="443" Protocol="https" />
+            <Instance Name="OpenWeatherMap1" Host="api.openweathermap.org1" Port="5000" Protocol="https" />
+            <Instance Name="OpenWeatherMap2" Host="api.openweathermap.org3" Port="443" Protocol="https" />
         </Instances>
         <Endpoints>
             <Endpoint Name="Current">
@@ -35,6 +37,13 @@
                     </Responses>
                 </Request>
             </Endpoint>
+        </Endpoints>
+    </Api>
+    <Api Name="Test" HttpVersion="HTTP/1.1">
+        <Instances>
+        </Instances>
+        <Endpoints>
+
         </Endpoints>
     </Api>
 </Apis>
